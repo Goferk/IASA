@@ -4,16 +4,43 @@
 #include <string.h>
 #include <string>
 #include <math.h>
+#include <cmath>
+#include <random>
+#include <utility>
+#include <algorithm>
 
 using namespace std;
 
 const int N = 3;
+
+void swap(int * list, int a, int b) {
+  int aux = list[b];
+  list[b] = list[a];
+  list[a] = aux;
+}
+
+void poblateSdk(int * sdk, bool * isGiven, int * numbers) {
+  for (int i = 0; i < N * N ; i++) {
+    for (int j = 0; j < N * N; j++) {
+      if (!isGiven[i * N * N + j]) {
+        for (int k = i + j; k < i + j + (N * N); k++) {
+          if (numbers[k % (N * N)] > 0) {
+            numbers[k % (N * N)]--;
+            sdk[i * N * N + j] = (k % (N * N)) + 1;
+            break;
+          }
+        }
+      }
+    }
+  }
+}
 
 int main() {
   string line;
   int number;
   int number2;
   int aux;
+  bool isGiven[N * N * N * N] = { };
   ifstream myfile;
   int numbers[N * N];
   int sdk[N * N * N * N];
@@ -63,7 +90,7 @@ int main() {
             col++;
 
           // Caso en el que el caracter es el valor de la casilla y es entregado como pista
-          } else if (isdigit(line[i])) {
+        } else if (isdigit(line[i]) && ((i > 1 && line[i - 1] == ' ') || i == 0)) {
             // Guardamos el primer digito
             number = line[i] - 48;
 
@@ -77,6 +104,7 @@ int main() {
             }
             // Actualizamos el valor de la casilla
             sdk[(fil * N * N) + col] = number;
+            isGiven[(fil * N * N) + col] = true;
 
             // Atualizamos la cantidad de valores disponibles
             numbers[number - 1]--;
@@ -123,22 +151,19 @@ int main() {
     }
     myfile.close();
 
-/*
-    std::cout << "Familia" << '\n' << '[';
-    for (int i = 0; i < N*N*N*N; i++)
-      std::cout << fmly[i] << ", ";
-    std::cout << ']' << '\n' << "Tablero" << '\n' << '[';
-    for (int i = 0; i < N*N*N*N; i++)
-      std::cout << sdk[i] << ", ";
-    std::cout << ']' << '\n' << "Suma esperada familia" << '\n' << '[';
-    for (int i = 0; i < 27; i++)
-      std::cout << expectedSumfmly[i] << ", ";
-    std::cout << ']' << '\n' << "Suma actual familia" << '\n' << '[';
-    for (int i = 0; i < 27; i++)
-      std::cout << sumfmly[i] << ", ";
-*/
-  } else
+  } else {
     std::cout << "Unable to open file";
+  }
+  poblateSdk(sdk, isGiven, numbers);
+
+  /*
+  std::cout<< '\n' << "Tablero" << '\n';
+  for (int i = 0; i < N*N; i++) {
+    for (int j = 0; j < N*N; j++)
+      std::cout << sdk[i * N * N + j] << '\t';
+    std::cout << "\n\n\n\n";
+  }
+  */
 
   return 0;
 }
