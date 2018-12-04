@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <string>
 #include <math.h>
@@ -11,7 +12,11 @@
 
 using namespace std;
 
+// Largo de submatriz
 const int N = 3;
+
+// Descuento por cada restriccion no cumplida
+const int D = 100;
 
 void swap(int * list, int a, int b) {
   int aux = list[b];
@@ -19,7 +24,37 @@ void swap(int * list, int a, int b) {
   list[a] = aux;
 }
 
-void poblateSdk(int * sdk, bool * isGiven, int * numbers) {
+int evaluate(int * sdk, int * fmly, int * sumfmly, int * expectedSumfmly) {
+  int cont = 0;
+  for (int i = 0; i < N * N; i++) {
+    if (sumfmly[i] != expectedSumfmly[i]) {
+      cont += D * abs(expectedSumfmly[i] - sumfmly[i]);
+    }
+    for (int j = 0; j < N * N; j++) {
+      for (int k = 0; k < N * N; k++) {
+        // Check distinct value in all column
+        if (k > i && sdk[i * N * N + j] == sdk[k * N * N + j]) {
+          cont += D * 2;
+        }
+
+        // Check distinct value in all row
+        if (k > j && sdk[i * N * N + j] == sdk[i * N * N + k]) {
+          cont += D * 2;
+        }
+
+        // Check distinct value in all submatrix
+        for (int m = 0; m < N && k < N; m++) {
+          if (i != ((i/N) * N + k) && j != ((j/N) * N + m) && sdk[i * N * N + j] == sdk[((i/N) * N + k) * N * N + ((j/N) * N + m)]) {
+            cont += D;
+          }
+        }
+      }
+    }
+  }
+  return cont;
+}
+
+void poblateSdk(int * sdk, bool * isGiven, int * numbers, int * sumfmly, int * fmly) {
   for (int i = 0; i < N * N ; i++) {
     for (int j = 0; j < N * N; j++) {
       if (!isGiven[i * N * N + j]) {
@@ -27,6 +62,7 @@ void poblateSdk(int * sdk, bool * isGiven, int * numbers) {
           if (numbers[k % (N * N)] > 0) {
             numbers[k % (N * N)]--;
             sdk[i * N * N + j] = (k % (N * N)) + 1;
+            sumfmly[fmly[i * N * N + j]] += (k % (N * N)) + 1;
             break;
           }
         }
@@ -154,16 +190,15 @@ int main() {
   } else {
     std::cout << "Unable to open file";
   }
-  poblateSdk(sdk, isGiven, numbers);
+  poblateSdk(sdk, isGiven, numbers, sumfmly, expectedSumfmly);
 
-  /*
-  std::cout<< '\n' << "Tablero" << '\n';
+
+  std::cout<< '\n' << "El valor es: " << evaluate(sdk, fmly, sumfmly, expectedSumfmly) << '\n';
   for (int i = 0; i < N*N; i++) {
     for (int j = 0; j < N*N; j++)
       std::cout << sdk[i * N * N + j] << '\t';
     std::cout << "\n\n\n\n";
   }
-  */
 
   return 0;
 }
