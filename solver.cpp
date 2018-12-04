@@ -18,10 +18,12 @@ const int N = 3;
 // Descuento por cada restriccion no cumplida
 const int D = 100;
 
-void swap(int * list, int a, int b) {
-  int aux = list[b];
-  list[b] = list[a];
-  list[a] = aux;
+void swap(int * sdk, int a, int b, int * fmly, int * sumfmly) {
+  int aux = sdk[b];
+  sumfmly[fmly[a]] += sdk[b] - sdk[a];
+  sumfmly[fmly[b]] += sdk[a] - sdk[b];
+  sdk[b] = sdk[a];
+  sdk[a] = aux;
 }
 
 int evaluate(int * sdk, int * fmly, int * sumfmly, int * expectedSumfmly) {
