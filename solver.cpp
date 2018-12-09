@@ -14,15 +14,13 @@ using namespace std;
 
 // PARAMETROS FIJOS
 const int N = 3; // Largo de submatriz
-const int D = 100; // Descuento por cada restriccion no cumplida del sudoku normal
-const int D2 = 5; // Descuento por cada unidad de diferencia del killer sudoku
+const int D = 30; // Descuento por cada restriccion no cumplida del sudoku normal
+const int D2 = 30; // Descuento por cada unidad de diferencia del killer sudoku
 const int ITER = 10000000; // Iteraciones totales antes de terminar el algoritmo
-const double ITEMP = 50; // Temperatura inicial
-const double DTEMP = 5; // Cuanto decrece la temperatura
-const int DTEMPITER = 20; // Iteraciones que demora en decrecer la temperatura
-const double ATEMP = 100; // Cuanto aumenta la temperatura
-const int ATEMPITER = 500; // Iteraciones que demora en aumentar la temperatura
-const double MINTEMP = 10; // Minima temperatura posible
+const long double ITEMP = 100; // Temperatura inicial
+const long double DTEMP = 0.3; // Cuanto decrece la temperatura en porcentaje
+const int DTEMPITER = 150; // Iteraciones que demora en decrecer la temperatura
+const int ATEMPITER = 50000; // Iteraciones que demora en aumentar la temperatura
 
 void swap(int * sdk, int a, int b, int * fmly, int * sumfmly) {
   int aux = sdk[b];
@@ -72,10 +70,10 @@ void poblateSdk(int * sdk, bool * isGiven, int * numbers, int * sumfmly, int * f
     for (int j = 0; j < N * N; j++) {
       if (!isGiven[i * N * N + j]) {
         for (int k = i + j; k < i + j + (N * N); k++) {
-          if (numbers[k % (N * N)] > 0) {
-            numbers[k % (N * N)]--;
-            sdk[i * N * N + j] = (k % (N * N)) + 1;
-            sumfmly[fmly[i * N * N + j]] += (k % (N * N)) + 1;
+          if (numbers[k % (N * N + 1)] > 0) {
+            numbers[k % (N * N + 1)]--;
+            sdk[i * N * N + j] = (k % (N * N + 1)) + 1;
+            sumfmly[fmly[i * N * N + j]] += (k % (N * N + 1)) + 1;
             break;
           }
         }
@@ -103,9 +101,9 @@ int main() {
   long double actualSol;
   int pvt1;
   int pvt2;
-  double temp = ITEMP;
+  long double temp = ITEMP;
   double rand01;
-  double cond;
+  long double cond;
 
   std::random_device generator;
   std::uniform_int_distribution<int> distribution(0, 80);
@@ -143,7 +141,7 @@ int main() {
             }
 
             // Guardamos el numero de familia en la casilla
-            fmly[fil * N * N + col] = number;
+            fmly[fil * N * N + col] = number - 1;
 
             // Guardamos la suma total de la familia actual
             sumfmly[number - 1] += sdk[fil * N * N + col];
@@ -216,7 +214,7 @@ int main() {
   } else {
     std::cout << "Unable to open file";
   }
-  poblateSdk(sdk, isGiven, numbers, sumfmly, expectedSumfmly);
+  poblateSdk(sdk, isGiven, numbers, sumfmly, fmly);
   bestSol = evaluate(sdk, fmly, sumfmly, expectedSumfmly);
   copySdk(sdk, bestSdk);
   number = 0;
@@ -242,19 +240,16 @@ int main() {
     if (actualSol > bestSol && cond <= rand01) {
       number++;
       swap(sdk, pvt1, pvt2, fmly, sumfmly);
-    } else if (actualSol < bestSol) {
+    } else if (actualSol <= bestSol) {
       number2++;
       bestSol = actualSol;
       copySdk(sdk, bestSdk);
     }
 
-    if ((i % ATEMPITER) == 0 && temp > 0 && i > 0) {
-      temp += ATEMP;
-    }
-    else if ((i % DTEMPITER) == 0 && temp - DTEMP > 0  && i > 0)
-      temp -= DTEMP;
-    else if ((i % DTEMPITER) == 0  && i > 0)
-      temp = MINTEMP;
+    if ((i % ATEMPITER) == 0 && i > 0)
+      temp = ITEMP;
+    else if ((i % DTEMPITER) == 0 && temp * (1 - DTEMP) >= 1 && i > 0)
+      temp = temp * (1 - DTEMP);
   }
   std::cout << "No acepto la solucion: " << number << '\n';
   std::cout << "Acepto la solucion porque era mejor: " << number2 << '\n';
