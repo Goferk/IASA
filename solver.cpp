@@ -14,12 +14,12 @@ using namespace std;
 
 // PARAMETROS FIJOS
 const int N = 3; // Largo de submatriz
-const int D = 30; // Descuento por cada restriccion no cumplida del sudoku normal
-const int D2 = 30; // Descuento por cada unidad de diferencia del killer sudoku
-const int ITER = 10000000; // Iteraciones totales antes de terminar el algoritmo
+const int D = 300; // Descuento por cada restriccion no cumplida del sudoku normal
+const int D2 = 10; // Descuento por cada unidad de diferencia del killer sudoku
+const int ITER = 100000; // Iteraciones totales antes de terminar el algoritmo
 const long double ITEMP = 100; // Temperatura inicial
 const long double DTEMP = 0.3; // Cuanto decrece la temperatura en porcentaje
-const int DTEMPITER = 150; // Iteraciones que demora en decrecer la temperatura
+const int DTEMPITER = 100; // Iteraciones que demora en decrecer la temperatura
 const int ATEMPITER = 50000; // Iteraciones que demora en aumentar la temperatura
 
 void swap(int * sdk, int a, int b, int * fmly, int * sumfmly) {
