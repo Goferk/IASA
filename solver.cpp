@@ -15,12 +15,12 @@ using namespace std;
 // PARAMETROS FIJOS
 const int N = 3; // Largo de submatriz
 const int D = 300; // Descuento por cada restriccion no cumplida del sudoku normal
-const int D2 = 10; // Descuento por cada unidad de diferencia del killer sudoku
+const int D2 = 1; // Descuento por cada unidad de diferencia del killer sudoku
 const int ITER = 100000; // Iteraciones totales antes de terminar el algoritmo
 const long double ITEMP = 100; // Temperatura inicial
-const long double DTEMP = 0.3; // Cuanto decrece la temperatura en porcentaje
-const int DTEMPITER = 100; // Iteraciones que demora en decrecer la temperatura
-const int ATEMPITER = 50000; // Iteraciones que demora en aumentar la temperatura
+const long double DTEMP = 0.5; // Cuanto decrece la temperatura en porcentaje
+const int DTEMPITER = 250; // Iteraciones que demora en decrecer la temperatura
+const int ATEMPITER = 5000; // Iteraciones que demora en aumentar la temperatura
 
 void swap(int * sdk, int a, int b, int * fmly, int * sumfmly) {
   int aux = sdk[b];
@@ -219,7 +219,16 @@ int main() {
   copySdk(sdk, bestSdk);
   number = 0;
   number2 = 0;
-  for (int i = 0; i < ITER; i++) {
+  int flag = 0;
+  for (int i = 0; i < N * N * N * N; i++) {
+    if (!isGiven[i]) {
+      flag++;
+      if (flag > 1)
+        break;
+    }
+  }
+
+  for (int i = 0; i < ITER && flag > 1; i++) {
     do {
       pvt1 = distribution(generator);
     } while (isGiven[pvt1]);
